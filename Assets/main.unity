@@ -684,11 +684,6 @@ Prefab:
       propertyPath: mainCam
       value: 
       objectReference: {fileID: 1713925229}
-    - target: {fileID: 114000013688732006, guid: d19c97313443a35428a20b5c49bf5815,
-        type: 2}
-      propertyPath: monsterBouncePwr
-      value: 1000
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: d19c97313443a35428a20b5c49bf5815, type: 2}
   m_IsPrefabParent: 0
