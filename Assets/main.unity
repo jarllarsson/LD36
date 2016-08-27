@@ -544,7 +544,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 106a0b0a3791aa44493dcd0c01fc70ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpd: 9
+  moveSpeed: 8
   rbody: {fileID: 790272854}
   collider: {fileID: 790272855}
   downCheckLen: 0.52
