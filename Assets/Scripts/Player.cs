@@ -5,7 +5,6 @@ public class Player : MonoBehaviour
 {
 	public float moveSpeed = 1.0f;
 	public Rigidbody2D rbody;
-	public Collider2D collider;
 
 	//public bool canMove = true;
 	public float downCheckLen = 1.0f;
@@ -19,7 +18,10 @@ public class Player : MonoBehaviour
 	public Renderer myRenderer;
 
 	public float jumpPwr = 100.0f;
-	public float instantJumpV = 3.0f;
+    private float jumpPwrCounter = 0.0f;
+    public float jumpPwrCounterSpeed = 0.3f;
+    public float jumpPwrCounterMp = 1.0f;
+    public float instantJumpV = 3.0f;
 	float jumpCooldown = 0.4f;
 	float jumpCooldownCount = 0.0f;
 	public bool onGround = false;
@@ -56,20 +58,21 @@ public class Player : MonoBehaviour
         float rStickMagnitude = rStickDir.magnitude;
         if (rStickMagnitude >= 0.2f)
             oldRStickDir = rStickDir;
-        float jump = Input.GetAxis("Jump");
-        if (jump > 0.0f)
+        float jump = 0.0f;
+        float jumpButtonPress = Input.GetAxis("Jump");
+        if (jumpButtonPress > 0.0f)
         {
             jumpVec = Vector2.down;
         }
         //canMove = false;
         Vector2 mousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-        bool jumpPress = Input.GetAxis("Fire1") > 0.0f;
+        bool jumpMousePress = Input.GetAxis("Fire1") > 0.0f;
 
         if (!regularJump)
         {
-            if (jumpPress || rStickMagnitude > 0.1f)
+            if (jumpMousePress || rStickMagnitude > 0.1f)
             {
-                if (jumpPress)
+                if (jumpMousePress)
                 {
                     jumpVec = Vector2.down;
                 }
@@ -90,8 +93,10 @@ public class Player : MonoBehaviour
                     if (deltaWorld.normalized.sqrMagnitude > 0.1f)
                         jumpVec = deltaWorld.normalized;
                     //Debug.DrawLine(transform.position, transform.position + deltaWorld, Color.yellow);
-                    Debug.DrawLine(startWorldPos, endWorldPos, Color.red);
-                    Debug.DrawLine(transform.position, transform.position + new Vector3(oldRStickDir.x, oldRStickDir.y, 0.0f), Color.red);
+                    Debug.DrawLine(startWorldPos, startWorldPos + deltaWorld * jumpPwrCounter, Color.red);
+                    Debug.DrawLine(transform.position, transform.position + new Vector3(oldRStickDir.x, oldRStickDir.y, 0.0f) * jumpPwrCounter * 10.0f, Color.red);
+                    jumpPwrCounter += Time.deltaTime * jumpPwrCounterSpeed;
+                    jumpPwrCounter = Mathf.Clamp01(jumpPwrCounter) * jumpPwrCounterMp;
                 }
             }
             else if (jumpTrigTapOn)
@@ -106,16 +111,20 @@ public class Player : MonoBehaviour
                 jump = 1.0f;
             }
         }
+        jump = Mathf.Clamp01(jumpButtonPress + jump);
 
 		// Jump
 		jumpCooldownCount -= Time.deltaTime;
-		if (jump > 0.0f && jumpCooldownCount < 0.0f && rbody.velocity.y <= 0.01f && (!regularJump || onGround))
+		if (jump > 0.0f && jumpCooldownCount < 0.0f && rbody.velocity.y <= 0.01f && (onGround || (!regularJump && jumpButtonPress <= 0.0f)))
 		{
 			//canMove = false;
 			rbody.velocity = new Vector2(rbody.velocity.x, Mathf.Max(rbody.velocity.y, -jumpVec.y * instantJumpV));
-			rbody.AddForce(-jumpVec * jumpPwr);
+            float mp = 1.0f;
+            if (jumpButtonPress <= 0.0f) mp = jumpPwrCounter;
+			rbody.AddForce(-jumpVec * jumpPwr * mp);
 			jumpCooldownCount = jumpCooldown;
 			oldRStickDir = Vector2.zero;
+            jumpPwrCounter = 0.0f;
 		}
 		if (rbody.velocity.y <= 0.0f)
 		{

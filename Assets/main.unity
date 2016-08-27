@@ -546,15 +546,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 8
   rbody: {fileID: 790272854}
-  collider: {fileID: 790272855}
   downCheckLen: 0.52
   downCheckOffsetLen: 1
   wallCheckLen: 1
   myRenderer: {fileID: 790272856}
   jumpPwr: 1500
+  jumpPwrCounterSpeed: 2
+  jumpPwrCounterMp: 1.2
   instantJumpV: 3
   onGround: 0
   mainCam: {fileID: 1713925229}
+  dragJump: 0
+  regularJump: 0
 --- !u!1 &1099832873
 GameObject:
   m_ObjectHideFlags: 0
