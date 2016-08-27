@@ -21,6 +21,13 @@ public class Player : MonoBehaviour
     float jumpCooldownCount = 0.0f;
     public bool onGround = false;
 
+    private Vector2 jumpTrigStart;
+    private bool jumpTrigTapOn = false;
+    private Vector2 jumpTrigDelta;
+    private Vector3 jumpVec;
+
+    public Camera mainCam;
+
 
 	// Use this for initialization
 	void Start () {
@@ -34,17 +41,46 @@ public class Player : MonoBehaviour
     {
         float dir = Input.GetAxis("Horizontal");
         float jump = Input.GetAxis("Jump");
-        canMove = true;
+        canMove = false;
+        Vector2 mousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+
+        if (Input.GetAxis("Fire1") > 0.0f)
+        {
+            Debug.Log(mousePos);
+            if (jumpTrigTapOn == false)
+            {
+                jumpTrigStart = mousePos;
+                jumpTrigTapOn = true;
+                Debug.Log("start");
+            }
+            else
+            {
+                Debug.Log("hold");
+                jumpTrigDelta = mousePos - jumpTrigStart; // TODO gamepad joysticks
+                Vector3 endWorldPos = mainCam.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, transform.position.z - mainCam.transform.position.z));
+                Vector3 startWorldPos = mainCam.ScreenToWorldPoint(new Vector3(jumpTrigStart.x, jumpTrigStart.y, transform.position.z - mainCam.transform.position.z));
+                Vector3 deltaWorld = endWorldPos - startWorldPos;
+                jumpVec = deltaWorld.normalized;
+                //Debug.DrawLine(transform.position, transform.position + deltaWorld, Color.yellow);
+                Debug.DrawLine(startWorldPos, endWorldPos, Color.red);
+            }
+        }
+        else if (jumpTrigTapOn)
+        {
+            jumpTrigTapOn = false;
+            Debug.DrawLine(transform.position, transform.position + new Vector3(jumpTrigDelta.x, jumpTrigDelta.y, 0.0f), Color.white, 2.0f);
+            jump = 1.0f;
+        }
 
         // Jump
         jumpCooldownCount -= Time.deltaTime;
-        if (jump > 0.0f && jumpCooldownCount < 0.0f && rbody.velocity.y <= 0.01f && onGround)
+        if (jump > 0.0f && jumpCooldownCount < 0.0f && rbody.velocity.y <= 0.01f/* && onGround*/)
         {
             canMove = false;
-            rbody.AddForce(new Vector2(0.0f, jumpPwr));
+            rbody.AddForce(-jumpVec * jumpPwr);
             jumpCooldownCount = jumpCooldown;
         }
-        if (rbody.velocity.y < 0.0f)
+        if (rbody.velocity.y <= 0.0f)
         {
             canMove = true;
             myRenderer.material.color = Color.red;
@@ -55,8 +91,10 @@ public class Player : MonoBehaviour
         }
 
         // Movement
-        if (canMove)
+        if (canMove && Mathf.Abs(dir) > 0.0f)
+        {
             rbody.velocity = new Vector2(dir * moveSpd, rbody.velocity.y);
+        }
 
         // One way platform jump
         Physics2D.IgnoreLayerCollision(playerLayer, platformLayer, rbody.velocity.y > 0.0f);
