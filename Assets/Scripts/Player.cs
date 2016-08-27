@@ -6,6 +6,8 @@ public class Player : MonoBehaviour
 	public float moveSpeed = 1.0f;
 	public Rigidbody2D rbody;
 
+    public Transform pointer;
+
 	//public bool canMove = true;
 	public float downCheckLen = 1.0f;
 	public float downCheckOffsetLen = 1.0f;
@@ -31,6 +33,8 @@ public class Player : MonoBehaviour
 	private Vector2 jumpTrigDelta;
 	private Vector3 jumpVec;
 	private Vector2 oldRStickDir;
+
+    public float pointDir = 1.0f;
 
 	public Camera mainCam;
 	bool canMove = true;
@@ -137,6 +141,8 @@ public class Player : MonoBehaviour
 		}
 
         // Movement
+        pointDir = dir < 0.0f ? -1.0f : 1.0f;
+        pointer.localScale = new Vector3(pointDir, 1.0f, 1.0f);
         float move = hitMove + dir * moveSpeed;
         if (canMove && Mathf.Abs(move) > 0.0f)
 		{
@@ -153,7 +159,7 @@ public class Player : MonoBehaviour
 		{
 			Debug.DrawLine(transform.position - Vector3.right * (float)i * downCheckOffsetLen, transform.position - Vector3.up * downCheckLen - Vector3.right * (float)i * downCheckOffsetLen);
 			Vector2 offset = -Vector3.right * (float)i * downCheckOffsetLen;
-			RaycastHit2D hit = Physics2D.Raycast(new Vector2(transform.position.x, transform.position.y) + offset, -Vector2.up, downCheckLen, ~(1 << playerLayer));
+			RaycastHit2D hit = Physics2D.Raycast(new Vector2(transform.position.x, transform.position.y) + offset, -Vector2.up, downCheckLen, (1 << platformLayer) | (1 << worldLayer));
 			if (hit.collider != null)
 			{
 				if (hit.normal.y > 0.0f && hit.normal.y > hit.normal.x)
