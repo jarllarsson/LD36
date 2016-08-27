@@ -8,6 +8,7 @@ public class Pickupable : MonoBehaviour
     public GameObject shootSpawn;
     public Rigidbody2D rbody;
     public Collider2D collider;
+    public MonsterShootBehaviour shooterController;
 
     public bool pickup = false;
 
@@ -54,7 +55,9 @@ public class Pickupable : MonoBehaviour
         //pickup = false;
         Debug.Log("shoot!");
         Debug.DrawLine(transform.position, transform.position + new Vector3(in_power.x, in_power.y, 0.0f), Color.magenta, 5.0f);
-        Destroy(gameObject);
+        //Destroy(gameObject);
+        transform.parent = null;
+        shooterController.TriggerShoot();
         // instance shootSpawn
         // set shootspawn sprite to my own
     }

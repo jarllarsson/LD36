@@ -8,7 +8,7 @@ public class PlayerPickerUpper : MonoBehaviour
 	public GameObject currentMonster;
 	Pickupable pickup;
 	public bool isAreaActive = false;
-    private bool toggle = false;
+	private bool toggle = false;
 
 	// Use this for initialization
 	void Start () 
@@ -35,34 +35,39 @@ public class PlayerPickerUpper : MonoBehaviour
 					pickup.pickupObj(player.pointer, Vector3.up); // trigger pickup, makes us own monster
 				}
 			}
-            else if (!toggle) // if holding, and registered and first button press after release
-            {
-			    currentMonster = null;
-			    if (pickup) pickup.shoot(Vector2.up * 100.0f); // fire away monster and reset
-			    pickup = null;
-            }
-            toggle = true;
+			else if (!toggle) // if holding, and registered and first button press after release
+			{
+				currentMonster = null;
+				if (pickup) pickup.shoot(Vector2.up * 100.0f); // fire away monster and reset
+				pickup = null;
+			}
+			toggle = true;
 		}
 		else
 		{
-            toggle = false;
+			toggle = false;
 			isAreaActive = false;
 		}
 	}
 
 	void OnTriggerEnter2D(Collider2D in_collider)
 	{
-		if (isAreaActive && in_collider && in_collider.gameObject)
-		{
-			currentMonster = in_collider.gameObject;
-		}
+		HandlePickup(in_collider);
 	}
 
 	void OnTriggerStay2D(Collider2D in_collider)
 	{
+		HandlePickup(in_collider);
+	}
+
+
+	void HandlePickup(Collider2D in_collider)
+	{
 		if (isAreaActive && in_collider && in_collider.gameObject)
 		{
-			currentMonster = in_collider.gameObject;
+            Monster monster = in_collider.GetComponent<Monster>();
+            if (monster && monster.staggered)
+			    currentMonster = in_collider.gameObject;
 		}
 	}
 
